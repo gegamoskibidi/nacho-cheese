@@ -1,0 +1,380 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local MainWindow = Rayfield:CreateWindow({
+    Name = "Gegamo Island",
+    LoadingTitle = "Loading Gegamo Island",
+    LoadingSubtitle = "by Gegamo",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = true, -- Create a custom folder for your hub/game
+        FileName = "gegamo aimbot"
+    },
+    Discord = {
+        Enabled = true,
+        Invite = "https://[Log in to view URL]", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+        RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+    },
+    KeySystem = true, -- Set this to true to use our key system
+    KeySettings = {
+        Title = "gegamo KeySystem",
+        Subtitle = "Key System",
+        Note = "No method of obtaining the key is provided",
+        FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+        SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+        GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+        Key = {"https://pastebin.com/raw/JskHULud"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+    }
+})
+
+-- Aimbot Tab
+local AimbotTab = MainWindow:CreateTab("Aimbot", nil)
+local AimbotSection = AimbotTab:CreateSection("Aim")
+
+local AimbotButton = AimbotTab:CreateButton({
+    Name = "Aimbot Toggle",
+    Callback = function()
+        getgenv().Aimbot = {
+            Status = true,
+            Hitpart = 'Head', -- Always target the Head
+        }
+
+        if getgenv().AimbotRan then
+            return
+        else
+            getgenv().AimbotRan = true
+        end
+
+        local RunService = game:GetService('RunService')
+        local Workspace = game:GetService('Workspace')
+        local Players = game:GetService('Players')
+
+        local LocalPlayer = Players.LocalPlayer
+        local Camera = Workspace.CurrentCamera
+        local Mouse = LocalPlayer:GetMouse()
+
+        local Player = nil -- Our target player
+
+        -- Function to get the closest player
+        local GetClosestPlayer = function()
+            local ClosestDistance, ClosestPlayer = math.huge, nil
+            for _, Player in pairs(Players:GetPlayers()) do
+                if Player.Name ~= LocalPlayer.Name and Player.Character and Player.Character:FindFirstChild('Head') then
+                    local HeadPosition, Visible = Camera:WorldToScreenPoint(Player.Character.Head.Position)
+                    if not Visible then
+                        continue
+                    end
+                    local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(HeadPosition.X, HeadPosition.Y)).Magnitude
+                    if Distance < ClosestDistance then
+                        ClosestPlayer = Player
+                        ClosestDistance = Distance
+                    end
+                end
+            end
+            return ClosestPlayer
+        end
+
+        -- Detect when the right mouse button (M2) is held down
+        local holdingM2 = false
+        Mouse.Button2Down:Connect(function() -- Right mouse button down
+            holdingM2 = true
+            Player = GetClosestPlayer() -- Get the closest player when M2 is pressed
+        end)
+
+        Mouse.Button2Up:Connect(function() -- Right mouse button up
+            holdingM2 = false
+            Player = nil -- Release the target when M2 is released
+        end)
+
+        -- Aimbot function
+        RunService.RenderStepped:Connect(function()
+            if not holdingM2 or not Player then
+                return
+            end
+            if not Aimbot.Status then
+                return
+            end
+
+            local Hitpart = Player.Character:FindFirstChild(Aimbot.Hitpart)
+            if not Hitpart then
+                return
+            end
+
+            -- Set the Camera's CFrame to lock directly onto the head with no prediction
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, Hitpart.Position)
+        end)
+    end,
+})
+
+-- Fly Tab
+local FlyTab = MainWindow:CreateTab("Fly", nil)
+local FlySection = FlyTab:CreateSection("Fly Controls")
+
+-- Fly Button to open Fly GUI
+local FlyButton = FlyTab:CreateButton({
+    Name = "Open Fly GUI",
+    Callback = function()
+        -- Gui to Lua
+        -- Version: 3.2
+
+        -- Instances:
+        local FlyScript = Instance.new("ScreenGui")
+        local Frame = Instance.new("Frame")
+        local UICorner = Instance.new("UICorner")
+        local TextButton = Instance.new("TextButton")
+        local UICorner_2 = Instance.new("UICorner")
+        local IsOn = Instance.new("TextButton")
+        local UICorner_3 = Instance.new("UICorner")
+        local TextButton2 = Instance.new("TextBox")
+        local UICorner_4 = Instance.new("UICorner")
+
+        --Properties:
+        FlyScript.Name = "FlyScript"
+        FlyScript.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+        Frame.Parent = FlyScript
+        Frame.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        Frame.BackgroundTransparency = 1.000
+        Frame.Position = UDim2.new(0, 0, 0.684542596, 0)
+        Frame.Selectable = true
+        Frame.Size = UDim2.new(0.296442688, 0, 0.315457404, 0)
+
+        UICorner.CornerRadius = UDim.new(0.0199999996, 0)
+        UICorner.Parent = Frame
+
+        TextButton.Parent = Frame
+        TextButton.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+        TextButton.BorderSizePixel = 0
+        TextButton.Position = UDim2.new(0.246271417, 0, 0.182839051, 0)
+        TextButton.Size = UDim2.new(0.393333346, 0, 0.25, 0)
+        TextButton.Font = Enum.Font.FredokaOne
+        TextButton.Text = "Fly: "
+        TextButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TextButton.TextScaled = true
+        TextButton.TextSize = 14.000
+        TextButton.TextWrapped = true
+        TextButton.TextXAlignment = Enum.TextXAlignment.Left
+
+        UICorner_2.CornerRadius = UDim.new(0, 30)
+        UICorner_2.Parent = TextButton
+
+        IsOn.Name = "IsOn"
+        IsOn.Parent = Frame
+        IsOn.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+        IsOn.BackgroundTransparency = 1.000
+        IsOn.BorderSizePixel = 0
+        IsOn.Position = UDim2.new(0.45960474, 0, 0.182839051, 0)
+        IsOn.Size = UDim2.new(0.180000007, 0, 0.25, 0)
+        IsOn.Font = Enum.Font.FredokaOne
+        IsOn.Text = "Off"
+        IsOn.TextColor3 = Color3.fromRGB(255, 0, 0)
+        IsOn.TextScaled = true
+        IsOn.TextSize = 14.000
+        IsOn.TextWrapped = true
+
+        UICorner_3.CornerRadius = UDim.new(0, 30)
+        UICorner_3.Parent = IsOn
+
+        TextButton2.Name = "TextButton2"
+        TextButton2.Parent = Frame
+        TextButton2.BackgroundColor3 = Color3.fromRGB(120, 120, 120)
+        TextButton2.Position = UDim2.new(0.259604752, 0, 0.532839, 0)
+        TextButton2.Size = UDim2.new(0.379999995, 0, 0.25, 0)
+        TextButton2.Font = Enum.Font.FredokaOne
+        TextButton2.PlaceholderColor3 = Color3.fromRGB(0, 0, 0)
+        TextButton2.PlaceholderText = "Speed"
+        TextButton2.Text = ""
+        TextButton2.TextScaled = true
+        TextButton2.TextWrapped = true
+
+        UICorner_4.CornerRadius = UDim.new(0, 30)
+        UICorner_4.Parent = TextButton2
+
+        -- Scripts:
+        local function EURQXKU_fake_script() -- Frame.Drag script 
+            local script = Instance.new('LocalScript', Frame)
+
+            local UIS = game:GetService("UserInputService")
+            function drag(Frame)
+                dragToggle = nil
+                dragSpeed = 0.23 -- change drag speed here (up to 1 down to 0)
+                dragInput = nil
+                dragStart = nil
+                startPos = nil
+                Frame.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        dragToggle = true
+                        dragStart = input.Position - Frame.Position
+                        startPos = Frame.Position
+                        input.Changed:Connect(function()
+                            if input.UserInputState == Enum.UserInputState.End then
+                                dragToggle = false
+                            end
+                        end)
+                    end
+                end)
+                UIS.InputChanged:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseMovement and dragToggle then
+                        Frame.Position = UDim2.new(0, input.Position.X - dragStart.X, 0, input.Position.Y - dragStart.Y)
+                    end
+                end)
+            end
+            drag(Frame)
+        end
+        EURQXKU_fake_script()
+
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local flying = false
+        local speed = 50 -- Default speed
+
+        local function Fly()
+            flying = true
+            local bodyVelocity = Instance.new("BodyVelocity")
+            bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            bodyVelocity.MaxForce = Vector3.new(4000, 4000, 4000)
+            bodyVelocity.Parent = character:WaitForChild("HumanoidRootPart")
+            local bodyGyro = Instance.new("BodyGyro")
+            bodyGyro.P = 3000
+            bodyGyro.MaxTorque = Vector3.new(4000, 4000, 4000)
+            bodyGyro.Parent = character:WaitForChild("HumanoidRootPart")
+
+            while flying do
+                wait()
+                bodyGyro.CFrame = workspace.CurrentCamera.CFrame
+                bodyVelocity.Velocity = workspace.CurrentCamera.CFrame.LookVector * speed
+            end
+            bodyVelocity:Destroy()
+            bodyGyro:Destroy()
+        end
+
+        local function EndFly()
+            flying = false
+        end
+
+        TextButton.MouseButton1Click:Connect(function()
+            if flying then
+                EndFly()
+                IsOn.Text = "Off"
+                IsOn.TextColor3 = Color3.fromRGB(255, 0, 0)
+            else
+                Fly()
+                IsOn.Text = "On"
+                IsOn.TextColor3 = Color3.fromRGB(0, 255, 0)
+            end
+        end)
+
+        -- Function to change speed
+        TextButton2.Focused:Connect(function()
+            TextButton2:GetPropertyChangedSignal("Text"):Wait()
+            local newSpeed = tonumber(TextButton2.Text)
+            if newSpeed then
+                speed = newSpeed
+            end
+        end)
+    end,
+})
+
+-- ESP Tab
+local EspTab = MainWindow:CreateTab("ESP", nil)
+local EspSection = EspTab:CreateSection("ESP")
+
+local EspButton = EspTab:CreateButton({
+    Name = "ESP Toggle",
+    Callback = function()
+        local ESPEnabled = false
+        local Players = game:GetService("Players")
+        local RunService = game:GetService("RunService")
+        local function CreateESP(Player)
+            local Highlight = Instance.new("Highlight")
+            Highlight.Parent = Player.Character
+            Highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red color
+            Highlight.FillTransparency = 0.5
+            Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            Highlight.OutlineTransparency = 0.5
+
+            -- Remove ESP on character removal
+            Player.CharacterRemoving:Connect(function()
+                Highlight:Destroy()
+            end)
+        end
+
+        local function EnableESP()
+            ESPEnabled = true
+            for _, Player in ipairs(Players:GetPlayers()) do
+                if Player ~= Players.LocalPlayer and Player.Character then
+                    CreateESP(Player)
+                end
+            end
+        end
+
+        local function DisableESP()
+            ESPEnabled = false
+            for _, Player in ipairs(Players:GetPlayers()) do
+                if Player ~= Players.LocalPlayer and Player.Character then
+                    local Highlight = Player.Character:FindFirstChildOfClass("Highlight")
+                    if Highlight then
+                        Highlight:Destroy()
+                    end
+                end
+            end
+        end
+
+        if ESPEnabled then
+            DisableESP()
+        else
+            EnableESP()
+        end
+
+        -- Monitor for new players
+        Players.PlayerAdded:Connect(function(Player)
+            Player.CharacterAdded:Connect(function()
+                if ESPEnabled then
+                    CreateESP(Player)
+                end
+            end)
+        end)
+
+        -- Update ESP on existing players
+        RunService.RenderStepped:Connect(function()
+            if ESPEnabled then
+                for _, Player in ipairs(Players:GetPlayers()) do
+                    if Player ~= Players.LocalPlayer and Player.Character and not Player.Character:FindFirstChildOfClass("Highlight") then
+                        CreateESP(Player)
+                    end
+                end
+            end
+        end)
+    end,
+})
+
+-- Player Management
+local PlayersTab = MainWindow:CreateTab("Players", nil)
+local PlayersSection = PlayersTab:CreateSection("Player Management")
+
+local PlayerList = PlayersTab:CreateListbox({
+    Name = "Players List",
+    Height = 200,
+    MultiSelect = false,
+})
+
+Players.PlayerAdded:Connect(function(Player)
+    PlayerList:AddItem(Player.Name) -- Add new player to the list
+end)
+
+for _, Player in ipairs(Players:GetPlayers()) do
+    PlayerList:AddItem(Player.Name) -- Add existing players to the list
+end
+
+PlayerList.ItemSelected:Connect(function(Item)
+    print(Item) -- Action to perform when a player is selected from the list
+end)
+
+-- You can add more functionality here
+
+Rayfield:Notify({
+    Title = "Gegamo Island Loaded",
+    Content = "Welcome to Gegamo Island!",
+    Duration = 5,
+    Image = 4483362458,
+})
+
